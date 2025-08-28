@@ -3,7 +3,6 @@ import { users } from ".."
 import { randomUUID } from "crypto"
 
 export const signupcontroller =  (req:Request,res:Response)=>{
-    
     const data=req.body
     console.log(data)
     const userId = randomUUID()
@@ -13,20 +12,18 @@ export const signupcontroller =  (req:Request,res:Response)=>{
         password: data.password,
         balance: {
             coins: {},
-            amount: 100000
+            usd: 100000
         },
-        orders: []
+        orders: [],
+        positions:[]
     })
     return res.status(201).json({ userId })
 }
 export const signincontroller = (req:Request,res:Response)=>{
-    const data = req.body
-    if(!data?.username || !data?.password){
+    const userId = req.query.userId
+    if(!userId ){
         return res.status(400).json({ error: "username and password required" })
     }
-    const user = users.find((u)=> u.username === data.username)
-    if(!user || user.password !== data.password){
-        return res.status(401).json({ error: "invalid credentials" })
-    }
-    return res.json({ userId: user.Id })
+    const user = users.find((u)=> u.Id === userId)
+    return res.json({ user})
 }
