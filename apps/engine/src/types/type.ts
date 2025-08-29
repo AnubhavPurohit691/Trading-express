@@ -13,7 +13,10 @@ export type Order = {
     assert:string,
     stopLoss?:number,
     takeProfit?:number,
-    leverage:number
+    leverage:number,
+    status:"open"|"close",
+    margin:number,
+
 }
 
 export type Position= {

@@ -13,11 +13,11 @@ const SPREAD_CONSTANT=0.005
       }
 
       const sellPrice= getSellPrice(Number(data.p))
-      console.log(sellPrice)
+      // console.log(sellPrice)
       const buyPrice = getBuyPrice(Number(data.p))
-      console.log(buyPrice)
+      // console.log(buyPrice)
       const Avgprice=(buyPrice+sellPrice)/2
-      console.log(Avgprice)
+      // console.log(Avgprice)
     // console.log(data)
     // console.log(data)
     // console.log("working")

@@ -24,7 +24,7 @@ ws.on("open", () => {
 ws.on("message", (msg) => {
   const data = JSON.parse(msg.toString());
   // console.log(data.e,"data from e")
-console.log(data.data)
+// console.log(data.data)
   pushTradeDataToDb(data)
   // console.log()
   scalewebsocket(data.data);
