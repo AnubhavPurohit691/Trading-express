@@ -7,7 +7,7 @@ export const signupcontroller = (req: Request, res: Response) => {
 
   const data = req.body
   console.log(data)
-  if (data.username === null && data.password===null) return
+  if (data.username === null && data.password === null) return
   const userId = randomUUID()
 
   users.push({
@@ -18,8 +18,7 @@ export const signupcontroller = (req: Request, res: Response) => {
       coins: {},
       usd: 100000
     },
-    orders: [],
-    positions: []
+    trades: []
   })
 
   const token = jwt.sign({ userId: userId }, process.env.Secret || "anubhav")

@@ -29,13 +29,6 @@ export const pushTradeDataToDb = async (wsData: any) => {
         data.m, // is buyer market maker
       ],
     );
-
-    // console.log(
-    //   "Trade data inserted/ignored for symbol:",
-    //   data.s,
-    //   "trade ID:",
-    //   (data.e === 'aggTrade' ? data.a : data.t),
-    // );
   } finally {
     client.release();
   }

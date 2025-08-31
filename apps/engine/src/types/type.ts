@@ -1,30 +1,22 @@
 
 
-enum OrderType{
-   Sell ="Sell",
-   Buy="Buy"
-}
+// enum OrderType{
+//    Sell ="Sell",
+//    Buy="Buy"
+// }
 
-export type Order = {
-    orderId:string,
-    userId:string,
-    type:OrderType,
-    quantity:number,
-    assert:string,
-    stopLoss?:number,
-    takeProfit?:number,
-    leverage:number,
-    status:"open"|"close",
-    margin:number,
-
-}
-
-export type Position= {
-    stopLoss?:number|undefined,
-    takeProfit?:number|undefined,
-    buyPrice:number,
-    leverage:number,
+export type Trade= {
+    type:"sell"|"buy",
+    stopLoss?:number|null,
+    status:"open"|"closed",
+    tradeId:string,
+    takeProfit?:number|null,
+    pnl?:number,
+    openPrice:number,
+    leverage?:number,
     quantity:number,
     userId:string,
-    assert:string,
+    asset:string,
+    closedPrice?:number,
+    marginPrice?:number
 }

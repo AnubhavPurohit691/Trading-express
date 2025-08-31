@@ -11,32 +11,26 @@ const IntervalMap: Record<string, string> = {
   "5m": "5minute"
 }
 
+export const dbquery = async (timeinterval: string, asset: string, limit: string) => {
 
-
-export const dbquery = async (timeinterval: string, assert: string, limit: string) => {
-
+  const Client = await pool.connect()
   const suffix = IntervalMap[timeinterval];
   console.log(suffix)
   const tableName = `kline_${suffix}`
   console.log(tableName)
   try {
 
-    const Client = await pool.connect()
 
     const res = await Client.query(`
-    SELECT * FROM klines_5minute
+    SELECT * FROM klines_${suffix}
     WHERE UPPER(symbol) = UPPER ($1)
     ORDER BY bucket DESC 
     LIMIT $2; 
-    `, [assert, Number.parseInt(limit, 10)])
+    `, [asset, Number.parseInt(limit, 10)])
 
     return res.rows
+  }finally{
+    Client.release()
   }
-  catch (err) {
-    console.log(err)
-  }
-
-
-
-
+  
 }
