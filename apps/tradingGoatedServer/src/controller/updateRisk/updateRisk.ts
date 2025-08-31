@@ -1,0 +1,3 @@
+function updateRisk(data: any) {
+
+}
