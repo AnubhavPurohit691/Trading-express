@@ -1,8 +1,17 @@
 import type { Request, Response } from "express";
 import type { AuthenticatedRequest } from "../../middleware/middleware";
-import { users } from "../..";
+import { liquidity, trades, users } from "../..";
 import { randomUUIDv7 } from "bun";
 import { sub } from "../../connectredis";
+import { updateRisk } from "../updateRisk/updateRisk";
+import type { Trade } from "../../types/type";
+sub.pSubscribe("*", (d: any) => {
+  const data = JSON.parse(d)
+  // sellPrice = data.sellPrice
+  // AvgPrice = data.AvgPrice
+  // buyPrice = data.buyPrice
+  updateRisk(data)
+})
 
 export const dotrading = (req: AuthenticatedRequest, res: Response) => {
   const userId = req.userId
@@ -13,23 +22,15 @@ export const dotrading = (req: AuthenticatedRequest, res: Response) => {
   let sellPrice = 0
   let AvgPrice;
   let buyPrice;
-  sub.pSubscribe("*", (d: any) => {
-    const data = JSON.parse(d)
-    sellPrice = data.sellPrice
-    AvgPrice = data.AvgPrice
-    buyPrice = data.buyPrice
-  })
   if (user.balance.usd === 0) {
     res.json({ message: "ghar ja bhai tu" })
   }
   const marginPrice = (data.openPrice * data.quantity) / data.leverage
 
-
-  user?.trades.push({
-    type: data.type,
+  const tradee: Trade = {
     stopLoss: data.stopLoss || null,
     status: "open",
-    openPrice: data.type === "buy" ? Number(buyPrice) : Number(sellPrice),
+    openPrice: data.quantity >= 0 ? Number(buyPrice) : Number(sellPrice),
     leverage: data.leverage || 1,
     quantity: data.quantity,
     userId: userId,
@@ -37,24 +38,21 @@ export const dotrading = (req: AuthenticatedRequest, res: Response) => {
     tradeId: randomUUIDv7(),
     marginPrice: marginPrice,
     takeProfit: data.takeProfit || null
-  })
-
+  }
+  trades.push(tradee)
+  liquidity.set(userId, [])
+  liquidity.get(userId)!.push(tradee)
   user.balance.coins[data.assert] = data.quantity
-
-  const usertrade = user.trades.find((d) => {
-    return d.userId === userId
-  })
-  console.log(usertrade)
+  const usertrade = liquidity.get(userId)
   res.json({ message: "Trade executed successfully", usertrade })
 }
 
 export const gettrades = (req: AuthenticatedRequest, res: Response) => {
   const userId = req.userId
-  const user = users.find((data) => data.Id === userId)
-  if (!user) return
-  const trades = user.trades
+  const usertrade = liquidity.get(userId!)
   res.json({
-    trades
+
+    usertrade
   })
 }
 
@@ -63,14 +61,12 @@ export const closedtrade = (req: AuthenticatedRequest, res: Response) => {
   const { tradeId, closedPrice } = req.body
   const user = users.find((data) => data.Id === userId)
   if (!user) return
-  const trade = user.trades.findIndex((t) => t.tradeId === tradeId)
-  const existingtrade = user.trades[trade]
-  if (!existingtrade) {
-    return res.status(404).json({ message: "Trade not found" });
-  }
-  const actualpnl = Number(existingtrade?.openPrice) - closedPrice
-  const updatetrade = { ...existingtrade, status: "closed" as const, closedPrice: closedPrice, pnl: actualpnl }
-  user.trades[trade] = updatetrade
+  // const trade = user.trades.findIndex((t) => t.tradeId === tradeId)
+  const trades: Trade[] = liquidity.get(userId as any)!
+  const trade = trades.find((d) => d.tradeId === tradeId)
+
+  const actualpnl = (Number(trade?.openPrice) - closedPrice) * trade?.quantity!
+  const updatetrade = { ...trade, status: "closed" as const, closedPrice: closedPrice, pnl: actualpnl }
   return res.json({
     message: "Trade closed successfully",
     trade: updatetrade,

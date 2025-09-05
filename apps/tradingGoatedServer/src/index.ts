@@ -13,9 +13,10 @@ type User = {
   balance: {
     coins: Record<string, number>,
     usd: number
-  },
-  trades: Trade[]
+  }
 }
+export const trades: Trade[] = []
+export const liquidity = new Map<string, Array<Trade>>()
 connectredis()
 const app = express()
 app.use(express.json())

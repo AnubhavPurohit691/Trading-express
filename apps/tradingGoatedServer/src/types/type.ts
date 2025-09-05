@@ -2,7 +2,6 @@
 
 
 export type Trade = {
-  type: "sell" | "buy",
   stopLoss?: number | null,
   status: "open" | "closed",
   tradeId: string,

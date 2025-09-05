@@ -18,9 +18,7 @@ export const signupcontroller = (req: Request, res: Response) => {
       coins: {},
       usd: 100000
     },
-    trades: []
   })
-
   const token = jwt.sign({ userId: userId }, process.env.Secret || "anubhav")
   res.cookie("gettoken", token)
   return res.json({ message: "cookie set", token })
